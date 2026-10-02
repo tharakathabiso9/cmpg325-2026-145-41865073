@@ -1,0 +1,336 @@
+Router0(dhcp-config)# network 192.168.61.0 255.255.255.192
+Router0(dhcp-config)# default-router 192.168.61.1
+Router0(dhcp-config)#exit
+Router0(config)#
+Router0(config)#ip dhcp pool REPAIRS
+Router0(dhcp-config)# network 192.168.61.64 255.255.255.192
+Router0(dhcp-config)# default-router 192.168.61.65
+Router0(dhcp-config)#exit
+Router0(config)#
+Router0(config)#ip dhcp pool ADMIN
+Router0(dhcp-config)# network 192.168.61.128 255.255.255.192
+Router0(dhcp-config)# default-router 192.168.61.129
+Router0(dhcp-config)#exit
+Router0(config)#
+Router0(config)#ip dhcp pool PRINTER_ZONE
+Router0(dhcp-config)# network 192.168.61.224 255.255.255.224
+Router0(dhcp-config)# default-router 192.168.61.225
+Router0(dhcp-config)#exit
+Router0(config)#
+Router0(config)#! --- CR8: keep Admin out of the printer zone (Admin has its own printer) ---
+Router0(config)#ip access-list extended ADMIN_NO_PRINTER_ZONE
+Router0(config-ext-nacl)# deny ip 192.168.61.128 0.0.0.63 192.168.61.224 0.0.0.31
+Router0(config-ext-nacl)# permit ip any any
+Router0(config-ext-nacl)#exit
+Router0(config)#
+Router0(config)#interface GigabitEthernet0/0.30
+Router0(config-subif)# ip access-group ADMIN_NO_PRINTER_ZONE in
+Router0(config-subif)#exit
+Router0(config)#
+Router0(config)#end
+Router0#write memory
+%SYS-5-CONFIG_I: Configured from console by console
+
+Building configuration...
+[OK]
+Router0#show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol 
+GigabitEthernet0/0     unassigned      YES unset  up                    up 
+GigabitEthernet0/0.10  192.168.61.1    YES manual up                    up 
+GigabitEthernet0/0.20  192.168.61.65   YES manual up                    up 
+GigabitEthernet0/0.30  192.168.61.129  YES manual up                    up 
+GigabitEthernet0/0.40  192.168.61.193  YES manual up                    up 
+GigabitEthernet0/0.50  192.168.61.225  YES manual up                    up 
+GigabitEthernet0/1     unassigned      YES unset  administratively down down 
+GigabitEthernet0/2     unassigned      YES unset  administratively down down 
+Vlan1                  unassigned      YES unset  administratively down down
+Router0#show running-config | section dhcp
+ip dhcp excluded-address 192.168.61.1
+ip dhcp excluded-address 192.168.61.65
+ip dhcp excluded-address 192.168.61.129
+ip dhcp excluded-address 192.168.61.225 192.168.61.231
+ip dhcp pool SALES
+ network 192.168.61.0 255.255.255.192
+ default-router 192.168.61.1
+ip dhcp pool REPAIRS
+ network 192.168.61.64 255.255.255.192
+ default-router 192.168.61.65
+ip dhcp pool ADMIN
+ network 192.168.61.128 255.255.255.192
+ default-router 192.168.61.129
+ip dhcp pool PRINTER_ZONE
+ network 192.168.61.224 255.255.255.224
+ default-router 192.168.61.225
+Router0#show ip dhcp binding
+IP address       Client-ID/              Lease expiration        Type
+                 Hardware address
+192.168.61.2     0002.163A.674D           --                     Automatic
+192.168.61.3     00D0.BA68.E877           --                     Automatic
+192.168.61.66    00D0.D3C7.2039           --                     Automatic
+192.168.61.67    0001.4203.CD98           --                     Automatic
+192.168.61.130   000C.CF29.1B12           --                     Automatic
+192.168.61.131   00E0.F998.903A           --                     Automatic
+Router0#show ip dhcp pool
+
+Pool SALES :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 62
+ Leased addresses               : 2
+ Excluded addresses             : 4
+ Pending event                  : none
+
+ 1 subnet is currently in the pool
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.61.1         192.168.61.1     - 192.168.61.62     2    / 4     / 62
+
+Pool REPAIRS :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 62
+ Leased addresses               : 2
+ Excluded addresses             : 4
+ Pending event                  : none
+
+ 1 subnet is currently in the pool
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.61.65        192.168.61.65    - 192.168.61.126    2    / 4     / 62
+
+Pool ADMIN :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 62
+ Leased addresses               : 2
+ Excluded addresses             : 4
+ Pending event                  : none
+
+ 1 subnet is currently in the pool
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.61.129       192.168.61.129   - 192.168.61.190    2    / 4     / 62
+
+Pool PRINTER_ZONE :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 30
+ Leased addresses               : 0
+ Excluded addresses             : 4
+ Pending event                  : none
+
+ 1 subnet is currently in the pool
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.61.225       192.168.61.225   - 192.168.61.254    0    / 4     / 30
+Router0#show ip dhcp pool SALES
+Pool SALES :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 62
+ Leased addresses               : 2
+ Excluded addresses             : 4
+ Pending event                  : none
+
+ 1 subnet is currently in the pool
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.61.1         192.168.61.1     - 192.168.61.62     2    / 4     / 62
+Router0#show ip dhcp pool PRINTER_ZONE
+Pool PRINTER_ZONE :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 30
+ Leased addresses               : 0
+ Excluded addresses             : 4
+ Pending event                  : none
+
+ 1 subnet is currently in the pool
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.61.225       192.168.61.225   - 192.168.61.254    0    / 4     / 30
+Router0#show access-lists
+Extended IP access list ADMIN_NO_PRINTER_ZONE
+    10 deny ip 192.168.61.128 0.0.0.63 192.168.61.224 0.0.0.31 (8 match(es))
+    20 permit ip any any (8 match(es))
+
+Router0#show ip dhcp pool
+
+Pool SALES :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 62
+ Leased addresses               : 2
+ Excluded addresses             : 4
+ Pending event                  : none
+
+ 1 subnet is currently in the pool
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.61.1         192.168.61.1     - 192.168.61.62     2    / 4     / 62
+
+Pool REPAIRS :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 62
+ Leased addresses               : 2
+ Excluded addresses             : 4
+ Pending event                  : none
+
+ 1 subnet is currently in the pool
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.61.65        192.168.61.65    - 192.168.61.126    2    / 4     / 62
+
+Pool ADMIN :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 62
+ Leased addresses               : 2
+ Excluded addresses             : 4
+ Pending event                  : none
+
+ 1 subnet is currently in the pool
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.61.129       192.168.61.129   - 192.168.61.190    2    / 4     / 62
+
+Pool PRINTER_ZONE :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 30
+ Leased addresses               : 0
+ Excluded addresses             : 4
+ Pending event                  : none
+
+ 1 subnet is currently in the pool
+ Current index        IP address range                    Leased/Excluded/Total
+ 192.168.61.225       192.168.61.225   - 192.168.61.254    0    / 4     / 30
+Router0#show running-config
+Building configuration...
+
+Current configuration : 2133 bytes
+!
+version 15.1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname Router0
+!
+!
+!
+!
+ip dhcp excluded-address 192.168.61.1
+ip dhcp excluded-address 192.168.61.65
+ip dhcp excluded-address 192.168.61.129
+ip dhcp excluded-address 192.168.61.225 192.168.61.231
+!
+ip dhcp pool SALES
+ network 192.168.61.0 255.255.255.192
+ default-router 192.168.61.1
+ip dhcp pool REPAIRS
+ network 192.168.61.64 255.255.255.192
+ default-router 192.168.61.65
+ip dhcp pool ADMIN
+ network 192.168.61.128 255.255.255.192
+ default-router 192.168.61.129
+ip dhcp pool PRINTER_ZONE
+ network 192.168.61.224 255.255.255.224
+ default-router 192.168.61.225
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+!
+license udi pid CISCO2911/K9 sn FTX15242428-
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+no ip domain-lookup
+!
+!
+spanning-tree mode pvst
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ description Trunk to Switch0 Fa0/1
+ no ip address
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/0.10
+ description Sales gateway
+ encapsulation dot1Q 10
+ ip address 192.168.61.1 255.255.255.192
+!
+interface GigabitEthernet0/0.20
+ description Repairs gateway
+ encapsulation dot1Q 20
+ ip address 192.168.61.65 255.255.255.192
+!
+interface GigabitEthernet0/0.30
+ description Admin gateway
+ encapsulation dot1Q 30
+ ip address 192.168.61.129 255.255.255.192
+ ip access-group ADMIN_NO_PRINTER_ZONE in
+!
+interface GigabitEthernet0/0.40
+ description Future department gateway (reserved, no DHCP pool yet)
+ encapsulation dot1Q 40
+ ip address 192.168.61.193 255.255.255.224
+!
+interface GigabitEthernet0/0.50
+ description Shared printer zone gateway
+ encapsulation dot1Q 50
+ ip address 192.168.61.225 255.255.255.224
+!
+interface GigabitEthernet0/1
+ no ip address
+ duplex auto
+ speed auto
+ shutdown
+!
+interface GigabitEthernet0/2
+ no ip address
+ duplex auto
+ speed auto
+ shutdown
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+ip classless
+!
+ip flow-export version 9
+!
+!
+ip access-list extended ADMIN_NO_PRINTER_ZONE
+ deny ip 192.168.61.128 0.0.0.63 192.168.61.224 0.0.0.31
+ permit ip any any
+!
+!
+!
+!
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+!
+!
+end
+
+
+Router0#
